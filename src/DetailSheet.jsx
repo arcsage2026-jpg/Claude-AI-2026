@@ -3,6 +3,7 @@ import { X, Play, Pause, RotateCcw, Trash2 } from "lucide-react";
 import { T } from "../shared/theme.js";
 import { useRestTimer } from "../shared/useRestTimer.js";
 import { requestNotifyPermission, notifyRestOver, playBeep } from "./notify.js";
+import ExerciseAvatar from "./ExerciseAvatar.jsx";
 
 const REST_PRESETS = [60, 90, 120];
 const MONO = { fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace" };
@@ -65,6 +66,10 @@ export default function DetailSheet({ block, logs, onLogSet, onDeleteLog, onClos
           <button onClick={onClose} style={{ ...stepBtn, width: 32, height: 32 }}><X size={16} color={T.sub} /></button>
         </div>
         {block.note && <div style={{ fontSize: 12, color: T.faint, marginBottom: 16 }}>{block.note}</div>}
+
+        <div style={{ marginBottom: 16 }}>
+          <ExerciseAvatar exerciseId={block.id} />
+        </div>
 
         {/* quick log */}
         <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 14, padding: 14, display: "grid", gap: 12, marginBottom: 16 }}>

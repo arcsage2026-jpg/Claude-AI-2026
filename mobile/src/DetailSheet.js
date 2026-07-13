@@ -4,6 +4,7 @@ import { X, Play, Pause, RotateCcw, Trash2 } from "lucide-react-native";
 import { T } from "../../shared/theme.js";
 import { useRestTimer } from "../../shared/useRestTimer.js";
 import { requestNotifyPermission, scheduleRestOverNotification, cancelNotification, hapticRestOver } from "./notify.js";
+import AvatarWebView from "./AvatarWebView.js";
 
 const REST_PRESETS = [60, 90, 120];
 const MONO = { fontFamily: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }) };
@@ -39,6 +40,7 @@ export default function DetailSheet({ visible, block, logs, onLogSet, onDeleteLo
   const [durationVal, setDurationVal] = useState(30);
   const [rounds, setRounds] = useState(1);
   const [note, setNote] = useState("");
+  const [gender, setGender] = useState("male");
   const notificationIdRef = useRef(null);
 
   const timer = useRestTimer(60, () => {
@@ -93,7 +95,24 @@ export default function DetailSheet({ visible, block, logs, onLogSet, onDeleteLo
                 <X size={16} color={T.sub} />
               </Pressable>
             </View>
-            {block.note && <Text style={{ fontSize: 12, color: T.faint, marginBottom: 16 }}>{block.note}</Text>}
+            {block.note && <Text style={{ fontSize: 12, color: T.faint, marginBottom: 8 }}>{block.note}</Text>}
+
+            <AvatarWebView exerciseId={block.id} gender={gender} style={{ marginBottom: 8 }} />
+            <View style={{ flexDirection: "row", gap: 6, justifyContent: "center", marginBottom: 16 }}>
+              {["male", "female"].map((g) => (
+                <Pressable
+                  key={g}
+                  onPress={() => setGender(g)}
+                  style={{
+                    paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999,
+                    borderWidth: 1, borderColor: gender === g ? T.solar : T.line,
+                    backgroundColor: gender === g ? T.solarSoft : "transparent",
+                  }}
+                >
+                  <Text style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1, color: gender === g ? T.solar : T.sub }}>{g}</Text>
+                </Pressable>
+              ))}
+            </View>
 
             {/* quick log */}
             <View style={{ backgroundColor: T.bg2, borderWidth: 1, borderColor: T.line, borderRadius: 14, padding: 14, gap: 12, marginBottom: 16 }}>

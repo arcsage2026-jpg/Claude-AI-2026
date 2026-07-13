@@ -19,4 +19,8 @@ config.resolver.nodeModulesPaths = [
 // call" errors. Pin resolution to the explicit list above instead.
 config.resolver.disableHierarchicalLookup = true;
 
+// Let Metro treat the bundled avatar.html as a requireable static asset
+// (like an image) rather than trying to parse it as JS.
+config.resolver.assetExts.push("html");
+
 module.exports = config;
