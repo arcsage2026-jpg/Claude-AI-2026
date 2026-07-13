@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable, ScrollView, Platform } from "react-native";
 import {
   Sun, Moon, Flame, Dumbbell, Activity, Wind,
@@ -8,6 +8,7 @@ import { T, elcolor, esoft } from "../../shared/theme.js";
 import { PHASES, DAYS, REF, YOGA, BEEJ, phaseFromWeek, isDeload } from "../../shared/program.js";
 import { useYoddhaState } from "../../shared/useYoddhaState.js";
 import { nativeStorage } from "./storage.js";
+import DetailSheet from "./DetailSheet.js";
 
 const DISPLAY = {}; // reserved for a future custom display font
 const MONO = { fontFamily: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }) };
@@ -21,7 +22,10 @@ export default function YoddhaApp() {
   const {
     state: s, loaded, dayComplete, weekSessions, totalTrainDays,
     toggle, setTab, setDay, setWeek, newWeek, resetWeek, resetAll,
+    getLogs, logSet, deleteLog,
   } = useYoddhaState(nativeStorage);
+
+  const [detail, setDetail] = useState(null); // { dayKey, blockIndex } | null
 
   const phase = phaseFromWeek(s.week);
   const pIdx = phase - 1;
@@ -35,6 +39,8 @@ export default function YoddhaApp() {
       </View>
     );
   }
+
+  const detailBlock = detail ? DAYS.find((d) => d.key === detail.dayKey).blocks[detail.blockIndex] : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
@@ -103,7 +109,11 @@ export default function YoddhaApp() {
               })}
             </ScrollView>
 
-            <SessionCard day={dayObj} pIdx={pIdx} done={s.done[dayObj.key] || []} onToggle={toggle} complete={dayComplete(dayObj.key)} />
+            <SessionCard
+              day={dayObj} pIdx={pIdx} done={s.done[dayObj.key] || []} onToggle={toggle}
+              complete={dayComplete(dayObj.key)}
+              onOpenDetail={(i) => setDetail({ dayKey: dayObj.key, blockIndex: i })}
+            />
           </>
         )}
 
@@ -243,6 +253,15 @@ export default function YoddhaApp() {
           </View>
         )}
       </ScrollView>
+
+      <DetailSheet
+        visible={!!(detail && detailBlock)}
+        block={detailBlock}
+        logs={detailBlock ? getLogs(detail.dayKey, detailBlock.id) : []}
+        onLogSet={(entry) => detailBlock && logSet(detail.dayKey, detailBlock.id, entry)}
+        onDeleteLog={(ts) => detailBlock && deleteLog(detail.dayKey, detailBlock.id, ts)}
+        onClose={() => setDetail(null)}
+      />
     </View>
   );
 }
@@ -251,7 +270,7 @@ const navBtnStyle = { width: 40, height: 40, borderRadius: 10, borderWidth: 1, b
 const bigBtnStyle = (fg, bg) => ({ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: fg + "44", backgroundColor: bg });
 
 /* ---------------------------------------------------------- subviews */
-function SessionCard({ day, pIdx, done, onToggle, complete }) {
+function SessionCard({ day, pIdx, done, onToggle, complete, onOpenDetail }) {
   const c = elcolor(day.element);
   const El = day.element === "lunar" || day.element === "rest" ? Moon : Sun;
 
@@ -298,24 +317,26 @@ function SessionCard({ day, pIdx, done, onToggle, complete }) {
           const Icon = ICONS[b.icon] || Activity;
           const on = !!done[i];
           return (
-            <Pressable key={b.id || i} onPress={() => onToggle(day.key, i)} style={{
+            <View key={b.id || i} style={{
               flexDirection: "row", alignItems: "flex-start", gap: 12,
               paddingVertical: 13, paddingHorizontal: 16,
               borderTopWidth: i ? 1 : 0, borderTopColor: T.line,
               backgroundColor: on ? T.cardHi : "transparent",
             }}>
-              <View style={{ marginTop: 1, width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, borderColor: on ? T.done : T.line, backgroundColor: on ? T.done : "transparent", alignItems: "center", justifyContent: "center" }}>
+              <Pressable onPress={() => onToggle(day.key, i)} style={{ marginTop: 1, width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, borderColor: on ? T.done : T.line, backgroundColor: on ? T.done : "transparent", alignItems: "center", justifyContent: "center" }}>
                 {on && <Check size={14} color={T.bg} strokeWidth={3} />}
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
-                  <Icon size={13} color={on ? T.faint : c} />
-                  <Text style={{ fontSize: 13.5, fontWeight: "600", color: on ? T.faint : T.ink, textDecorationLine: on ? "line-through" : "none" }}>{b.name}</Text>
+              </Pressable>
+              <Pressable onPress={() => onOpenDetail(i)} style={{ flex: 1, flexDirection: "row", alignItems: "flex-start", gap: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+                    <Icon size={13} color={on ? T.faint : c} />
+                    <Text style={{ fontSize: 13.5, fontWeight: "600", color: on ? T.faint : T.ink, textDecorationLine: on ? "line-through" : "none" }}>{b.name}</Text>
+                  </View>
+                  {b.note && <Text style={{ fontSize: 11, color: T.faint, marginTop: 3 }}>{b.note}</Text>}
                 </View>
-                {b.note && <Text style={{ fontSize: 11, color: T.faint, marginTop: 3 }}>{b.note}</Text>}
-              </View>
-              <Text style={{ ...MONO, fontSize: 12, color: on ? T.faint : c, textAlign: "right", maxWidth: 130 }}>{b.vol[pIdx]}</Text>
-            </Pressable>
+                <Text style={{ ...MONO, fontSize: 12, color: on ? T.faint : c, textAlign: "right", maxWidth: 130 }}>{b.vol[pIdx]}</Text>
+              </Pressable>
+            </View>
           );
         })}
       </View>

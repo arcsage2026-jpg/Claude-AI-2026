@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Sun, Moon, Flame, Dumbbell, Activity, Wind,
   Check, ChevronLeft, ChevronRight, RotateCcw, Target, Circle,
@@ -7,6 +7,7 @@ import { T, elcolor, esoft } from "../shared/theme.js";
 import { PHASES, DAYS, REF, YOGA, BEEJ, phaseFromWeek, isDeload } from "../shared/program.js";
 import { useYoddhaState } from "../shared/useYoddhaState.js";
 import { webStorage } from "./storage.js";
+import DetailSheet from "./DetailSheet.jsx";
 
 const DISPLAY = { fontFamily: "'Helvetica Neue', 'Arial Narrow', system-ui, sans-serif" };
 const MONO = { fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace" };
@@ -18,7 +19,10 @@ export default function YoddhaApp() {
   const {
     state: s, loaded, dayComplete, weekSessions, totalTrainDays,
     toggle, setTab, setDay, setWeek, newWeek, resetWeek, resetAll,
+    getLogs, logSet, deleteLog,
   } = useYoddhaState(webStorage);
+
+  const [detail, setDetail] = useState(null); // { dayKey, blockIndex } | null
 
   const phase = phaseFromWeek(s.week);
   const pIdx = phase - 1;
@@ -28,6 +32,8 @@ export default function YoddhaApp() {
 
   if (!loaded)
     return <div style={{ background: T.bg, color: T.faint, minHeight: "100vh", display: "grid", placeItems: "center", ...MONO }}>loading…</div>;
+
+  const detailBlock = detail ? DAYS.find((d) => d.key === detail.dayKey).blocks[detail.blockIndex] : null;
 
   return (
     <div style={{ background: T.bg, color: T.ink, minHeight: "100vh" }}>
@@ -101,7 +107,11 @@ export default function YoddhaApp() {
             </div>
 
             {/* session card */}
-            <SessionCard day={dayObj} pIdx={pIdx} done={s.done[dayObj.key] || []} onToggle={toggle} complete={dayComplete(dayObj.key)} />
+            <SessionCard
+              day={dayObj} pIdx={pIdx} done={s.done[dayObj.key] || []} onToggle={toggle}
+              complete={dayComplete(dayObj.key)}
+              onOpenDetail={(i) => setDetail({ dayKey: dayObj.key, blockIndex: i })}
+            />
           </>
         )}
 
@@ -228,12 +238,22 @@ export default function YoddhaApp() {
           </div>
         )}
       </div>
+
+      {detail && detailBlock && (
+        <DetailSheet
+          block={detailBlock}
+          logs={getLogs(detail.dayKey, detailBlock.id)}
+          onLogSet={(entry) => logSet(detail.dayKey, detailBlock.id, entry)}
+          onDeleteLog={(ts) => deleteLog(detail.dayKey, detailBlock.id, ts)}
+          onClose={() => setDetail(null)}
+        />
+      )}
     </div>
   );
 }
 
 /* ---------------------------------------------------------- subviews */
-function SessionCard({ day, pIdx, done, onToggle, complete }) {
+function SessionCard({ day, pIdx, done, onToggle, complete, onOpenDetail }) {
   const c = elcolor(day.element);
   const El = day.element === "lunar" || day.element === "rest" ? Moon : Sun;
 
@@ -274,23 +294,32 @@ function SessionCard({ day, pIdx, done, onToggle, complete }) {
           const Icon = ICONS[b.icon] || Activity;
           const on = !!done[i];
           return (
-            <button key={b.id || i} onClick={() => onToggle(day.key, i)} style={{
-              width: "100%", textAlign: "left", display: "flex", alignItems: "flex-start", gap: 12,
+            <div key={b.id || i} style={{
+              width: "100%", display: "flex", alignItems: "flex-start", gap: 12,
               padding: "13px 16px", borderTop: i ? `1px solid ${T.line}` : "none",
-              background: on ? T.cardHi : "transparent", cursor: "pointer",
+              background: on ? T.cardHi : "transparent",
             }}>
-              <div style={{ marginTop: 1, width: 22, height: 22, borderRadius: 7, flexShrink: 0, border: `1.5px solid ${on ? T.done : T.line}`, background: on ? T.done : "transparent", display: "grid", placeItems: "center" }}>
+              <button onClick={() => onToggle(day.key, i)} style={{
+                marginTop: 1, width: 22, height: 22, borderRadius: 7, flexShrink: 0, cursor: "pointer",
+                border: `1.5px solid ${on ? T.done : T.line}`, background: on ? T.done : "transparent",
+                display: "grid", placeItems: "center",
+              }}>
                 {on && <Check size={14} color={T.bg} strokeWidth={3} />}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="flex items-center" style={{ gap: 7 }}>
-                  <Icon size={13} color={on ? T.faint : c} />
-                  <span style={{ fontSize: 13.5, fontWeight: 600, color: on ? T.faint : T.ink, textDecoration: on ? "line-through" : "none" }}>{b.name}</span>
+              </button>
+              <button onClick={() => onOpenDetail(i)} style={{
+                flex: 1, minWidth: 0, display: "flex", alignItems: "flex-start", gap: 12,
+                textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="flex items-center" style={{ gap: 7 }}>
+                    <Icon size={13} color={on ? T.faint : c} />
+                    <span style={{ fontSize: 13.5, fontWeight: 600, color: on ? T.faint : T.ink, textDecoration: on ? "line-through" : "none" }}>{b.name}</span>
+                  </div>
+                  {b.note && <div style={{ fontSize: 11, color: T.faint, marginTop: 3 }}>{b.note}</div>}
                 </div>
-                {b.note && <div style={{ fontSize: 11, color: T.faint, marginTop: 3 }}>{b.note}</div>}
-              </div>
-              <div style={{ ...MONO, fontSize: 12, color: on ? T.faint : c, flexShrink: 0, textAlign: "right", maxWidth: 130 }}>{b.vol[pIdx]}</div>
-            </button>
+                <div style={{ ...MONO, fontSize: 12, color: on ? T.faint : c, flexShrink: 0, textAlign: "right", maxWidth: 130 }}>{b.vol[pIdx]}</div>
+              </button>
+            </div>
           );
         })}
       </div>

@@ -64,8 +64,34 @@ export function useYoddhaState(storage) {
   const resetWeek = () => setS((p) => ({ ...p, done: {}, counted: {} }));
   const resetAll = () => setS((p) => ({ ...DEFAULT_STATE, day: p.day }));
 
+  const getLogs = (dayKey, blockId) => (s.logs[dayKey] && s.logs[dayKey][blockId]) || [];
+
+  const logSet = (dayKey, blockId, entry) => {
+    setS((p) => {
+      const dayLogs = p.logs[dayKey] || {};
+      const blockLogs = dayLogs[blockId] || [];
+      const newEntry = { week: p.week, ts: Date.now(), ...entry };
+      return {
+        ...p,
+        logs: { ...p.logs, [dayKey]: { ...dayLogs, [blockId]: [...blockLogs, newEntry] } },
+      };
+    });
+  };
+
+  const deleteLog = (dayKey, blockId, ts) => {
+    setS((p) => {
+      const dayLogs = p.logs[dayKey] || {};
+      const blockLogs = dayLogs[blockId] || [];
+      return {
+        ...p,
+        logs: { ...p.logs, [dayKey]: { ...dayLogs, [blockId]: blockLogs.filter((e) => e.ts !== ts) } },
+      };
+    });
+  };
+
   return {
     state: s, loaded, dayComplete, weekSessions, totalTrainDays,
     toggle, setTab, setDay, setWeek, newWeek, resetWeek, resetAll,
+    getLogs, logSet, deleteLog,
   };
 }
