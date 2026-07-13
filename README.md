@@ -46,6 +46,20 @@ Scan the QR code with the [Expo Go](https://expo.dev/go) app on your phone, or p
 
 > **Known gap**: native rendering (the app running on an actual iOS/Android device or simulator) hasn't been verified — this was built and tested via `npx expo start --web` only, since no device/simulator is available in the build environment. Do one on-device pass via Expo Go before relying on it, in particular the WebView-based 3D avatar and the scheduled rest-timer notifications.
 
+### If Expo Go's SDK version doesn't match this project
+
+Expo Go only supports one SDK version at a time. If your installed Expo Go is older than this project's SDK (57), either update Expo Go from the Play Store / App Store, or build a custom **development client** — an app matching this project's exact SDK, installed once, with no Expo Go version constraint at all:
+
+```bash
+npm install -g eas-cli   # or use npx eas-cli each time instead
+eas login                # needs a free expo.dev account
+cd mobile
+eas build:configure      # links this project to your Expo account (writes a projectId into app.json)
+eas build --profile development --platform android   # or --platform ios
+```
+
+That queues a cloud build (a few minutes) and gives you a download link/QR code for the resulting APK — install it on your phone like any app, then run `npx expo start --dev-client` instead of `npx expo start` and connect through that installed app instead of Expo Go.
+
 ## Shared logic (`/shared`)
 
 Framework-agnostic JS shared by both apps:
