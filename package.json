@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:avatar": "vite build --config vite.avatar.config.js && mkdir -p mobile/assets/avatar && cp dist-avatar/avatar.html mobile/assets/avatar/avatar.html"
+    "build:avatar": "vite build --config vite.avatar.config.js && node scripts/wrap-avatar-html.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^8.18.0",
