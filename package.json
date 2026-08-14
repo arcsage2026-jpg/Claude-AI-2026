@@ -7,10 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:avatar": "vite build --config vite.avatar.config.js && node scripts/wrap-avatar-html.mjs"
+    "build:avatar": "vite build --config vite.avatar.config.js && node scripts/wrap-avatar-html.mjs",
+    "dev:secondbrain": "vite --config vite.secondbrain.config.js",
+    "build:secondbrain": "vite build --config vite.secondbrain.config.js",
+    "dev:secondbrain-server": "node --watch server/index.js",
+    "start:secondbrain-server": "node server/index.js"
   },
   "dependencies": {
     "@react-three/fiber": "^8.18.0",
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
     "lucide-react": "^0.474.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

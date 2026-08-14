@@ -83,3 +83,28 @@ A procedurally-built humanoid (no external 3D model files — see the note on re
 ## Source material
 
 The full 12-week program (exercise banks, progression tables, safety notes) lives in [`docs/YoddhaProtocolTrainingProgram.md`](docs/YoddhaProtocolTrainingProgram.md).
+
+## Second Brain — YouTube content studio (`/secondbrain`, `/server`)
+
+An unrelated second app that also lives in this repo: a "second brain" for planning YouTube videos, from raw idea through to published. It's a separate React SPA (`/secondbrain`) backed by a small Express + SQLite API (`/server`) — its own database, its own dev server, no shared state with the Yoddha Protocol tracker above.
+
+**What it does**
+- **Board** — a Kanban view of every video idea moving through five stages: Idea → Scripting → Filming → Editing → Published. Drag a card between columns, or open it and pick a stage directly.
+- **Idea capture** — quickly add a title, one-line summary, tags, and (optionally) which channel it's for.
+- **Script workspace** — per-idea structured fields for Hook / Body / Call-to-action, autosaved ~600ms after you stop typing.
+- **Research & sources** — attach links, freeform notes, or pasted transcripts to an idea, so the material you're drawing from lives next to the script.
+- **Channels** — track the YouTube channel(s) you're planning for (name, handle, URL, subscriber count, notes), and assign ideas to one.
+
+**Stack**: React 18 + Vite + Tailwind on the frontend (same toolchain as the app above); Express + [`better-sqlite3`](https://github.com/WiseLibs/better-sqlite3) on the backend, storing data in a local `server/data/secondbrain.sqlite3` file (gitignored — every environment gets its own).
+
+**Run it locally** (two processes, in separate terminals):
+
+```bash
+npm install
+npm run dev:secondbrain-server   # API on http://localhost:5175
+npm run dev:secondbrain          # Vite dev server on http://localhost:5174, proxies /api to the server above
+```
+
+Then open http://localhost:5174. `npm run build:secondbrain` produces a static production build in `dist-secondbrain/`; the built frontend still needs the API server running (`npm run start:secondbrain-server`) somewhere it can reach at `/api`.
+
+**API surface**: `GET/POST /api/projects`, `GET/PUT/DELETE /api/projects/:id`, `PATCH /api/projects/:id/stage`, `PUT /api/projects/:id/script`, `GET/POST /api/projects/:id/sources`, `PUT/DELETE /api/sources/:id`, `GET/POST/PUT/DELETE /api/channels`.
