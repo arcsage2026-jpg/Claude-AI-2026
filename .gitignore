@@ -3,7 +3,11 @@ node_modules/
 dist/
 dist-avatar/
 dist-ssr/
+dist-secondbrain/
 *.local
+
+# Second Brain local database
+server/data/
 
 # Gradle files
 .gradle/
