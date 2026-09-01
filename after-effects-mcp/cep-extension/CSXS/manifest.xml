@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="9.0" ExtensionBundleId="com.after-effects-mcp.bridge"
+    ExtensionBundleVersion="1.0.0" ExtensionBundleName="After Effects MCP Bridge">
+  <ExtensionList>
+    <Extension Id="com.after-effects-mcp.bridge.panel" Version="1.0.0" />
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <!-- AEFT = After Effects. Version range covers CC 2018 (15.0) onward. -->
+      <Host Name="AEFT" Version="[15.0,99.9]" />
+    </HostList>
+    <LocaleList>
+      <Locale Code="All" />
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="9.0" />
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.after-effects-mcp.bridge.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./index.html</MainPath>
+          <ScriptPath>./js/hostscript.jsx</ScriptPath>
+          <!-- Node integration must be on: bridge-server.js hosts the localhost
+               HTTP server directly inside the panel using Node's http module. -->
+          <CEFCommandLine>
+            <Parameter>--enable-nodejs</Parameter>
+            <Parameter>--mixed-context</Parameter>
+          </CEFCommandLine>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>MCP Bridge</Menu>
+          <Geometry>
+            <Size>
+              <Height>240</Height>
+              <Width>360</Width>
+            </Size>
+            <MinSize>
+              <Height>160</Height>
+              <Width>280</Width>
+            </MinSize>
+          </Geometry>
+          <Icons />
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>

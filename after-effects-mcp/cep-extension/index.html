@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MCP Bridge</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      background: #2e2e2e;
+      color: #ccc;
+    }
+    h1 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: #eee;
+    }
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #888;
+      flex-shrink: 0;
+    }
+    .dot.ok { background: #4caf50; }
+    .dot.err { background: #e53935; }
+    code {
+      background: #1e1e1e;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    p { line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <h1>After Effects MCP Bridge</h1>
+  <div class="status-row">
+    <div id="dot" class="dot"></div>
+    <span id="statusText">Starting…</span>
+  </div>
+  <p id="detail"></p>
+  <p>Keep this panel open while using the After Effects MCP server. Closing it stops the bridge.</p>
+
+  <script src="./js/CSInterface.js"></script>
+  <script src="./js/bridge-server.js"></script>
+  <script>
+    function render() {
+      var status = window.mcpBridgeStatus;
+      var dot = document.getElementById("dot");
+      var text = document.getElementById("statusText");
+      var detail = document.getElementById("detail");
+      if (!status) return;
+      if (status.running) {
+        dot.className = "dot ok";
+        text.textContent = "Running on port " + status.port;
+        detail.innerHTML =
+          "The after-effects-mcp-server Node process connects here automatically. " +
+          "If it was started with a different <code>AE_BRIDGE_PORT</code>, set it to <code>" +
+          status.port + "</code> or change the port in <code>cep-extension/js/bridge-server.js</code> and re-run.";
+      } else {
+        dot.className = "dot err";
+        text.textContent = "Failed to start";
+        detail.textContent = status.error || "Unknown error.";
+      }
+    }
+    window.onMcpBridgeStatusChange = render;
+    render();
+  </script>
+</body>
+</html>
