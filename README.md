@@ -108,3 +108,11 @@ npm run dev:secondbrain          # Vite dev server on http://localhost:5174, pro
 Then open http://localhost:5174. `npm run build:secondbrain` produces a static production build in `dist-secondbrain/`; the built frontend still needs the API server running (`npm run start:secondbrain-server`) somewhere it can reach at `/api`.
 
 **API surface**: `GET/POST /api/projects`, `GET/PUT/DELETE /api/projects/:id`, `PATCH /api/projects/:id/stage`, `PUT /api/projects/:id/script`, `GET/POST /api/projects/:id/sources`, `PUT/DELETE /api/sources/:id`, `GET/POST/PUT/DELETE /api/channels`.
+
+## After Effects MCP server (`/aftereffects-mcp`)
+
+An MCP server that lets Claude drive Adobe After Effects 2026 through a dockable bridge panel. It can build comps, add on-brand text and shapes, animate, apply effects and render, with a company brand kit, per-command undo, an optional audit log and raw scripting off by default. See [`aftereffects-mcp/README.md`](aftereffects-mcp/README.md) for setup.
+
+```bash
+cd aftereffects-mcp && npm install && npm test
+```
