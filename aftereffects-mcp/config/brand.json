@@ -1,0 +1,21 @@
+{
+  "name": "Your Company",
+  "colors": {
+    "primary": "#1E3A8A",
+    "secondary": "#F59E0B",
+    "background": "#0B1020",
+    "text": "#FFFFFF",
+    "accent": "#10B981"
+  },
+  "fonts": {
+    "heading": "Arial-BoldMT",
+    "body": "ArialMT"
+  },
+  "defaults": {
+    "width": 1920,
+    "height": 1080,
+    "frameRate": 30,
+    "duration": 10,
+    "pixelAspect": 1
+  }
+}
