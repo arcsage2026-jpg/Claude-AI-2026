@@ -9,9 +9,11 @@
     "backgroundColor": "#191410",
     "assetBundlePatterns": ["assets/**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arcsage2026.yoddhaprotocol"
     },
     "android": {
+      "package": "com.arcsage2026.yoddhaprotocol",
       "adaptiveIcon": {
         "backgroundColor": "#191410",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -21,6 +23,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "backgroundColor": "#191410",
+          "resizeMode": "contain"
+        }
+      ]
+    ]
   }
 }
